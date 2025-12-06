@@ -1,0 +1,29 @@
+{
+  "name": "warframe-checklist",
+  "version": "1.0.0",
+  "description": "A checklist app for tracking Warframe items",
+  "main": "index.js",
+  "scripts": {
+    "develop": "gatsby develop -H 0.0.0.0",
+    "build": "gatsby build",
+    "serve": "gatsby serve",
+    "clean": "gatsby clean"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.86.2",
+    "@wfcd/items": "^1.1270.285",
+    "dotenv": "^17.2.3",
+    "gatsby": "^5.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-helmet": "^6.1.0"
+  },
+  "keywords": [
+    "gatsby",
+    "warframe",
+    "checklist",
+    "react"
+  ],
+  "author": "Ezekiel Pogue",
+  "license": "MIT"
+}
