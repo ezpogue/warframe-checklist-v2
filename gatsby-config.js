@@ -10,4 +10,7 @@ module.exports = {
     author: `Ezekiel Pogue`,
     siteUrl: `https://ezpogue.github.io/warframe-checklist`,
   },
+  plugins: [
+    "gatsby-plugin-postcss",
+  ],
 }

@@ -9,6 +9,8 @@ import ActivitiesTab from "../components/activitiesTab.js";
 import usePersistentLocalStorage from "../hooks/usePersistentLocalStorage.js";
 import { supabase } from "../lib/supabaseClient";
 
+import "../styles/global.css";
+
 
 const IndexPage = () => {
   const moveSelectedToEndKey = "moveSelectedToEnd";
@@ -93,134 +95,66 @@ const IndexPage = () => {
 
   const handleTabChange = (tab) => {
     setSelectedTab(tab);
-  };
-
-  const authButtonStyle = {
-    padding: "0.4rem 0.8rem",
-    borderRadius: "6px",
-    border: "none",
-    backgroundColor: "#007bff",
-    color: "#fff",
-    cursor: "pointer",
-  };
-
-  const modalInputStyle = {
-    width: "100%",
-    padding: "0.6rem 0.8rem",
-    marginBottom: "0.8rem",
-    borderRadius: "6px",
-    border: "1px solid #ccc",
-  };
-
-  const secondaryButtonStyle = {
-    padding: "0.4rem 0.8rem",
-    borderRadius: "6px",
-    border: "none",
-    backgroundColor: "#e0e0e0",
-    cursor: "pointer",
-  };
-
+  }; 
 
   return (
     <>
     <div
-      style={{
-        padding: "2rem",
-        paddingLeft: "4%",
-        paddingRight: "4%",
-        margin: "0 auto",
-        filter: showAuthModal ? "blur(5px)" : "none",
-        pointerEvents: showAuthModal ? "none" : "auto",
-        transition: "filter 0.2s ease",
-      }}
+      className={`p-8 mx-auto 
+      transition-filter duration-10000 ease-linear
+      ${showAuthModal ? 'filter-blur pointer-events-none' : ''}`}
     >
       <Helmet>
         <title>Warframe Checklist</title>
       </Helmet>
-      <div style={{
-        marginBottom: "1rem",
-        display: "flex",
-        flexWrap: "wrap",
-        alignItems: "center",
-        gap: "1rem",
-      }}>
+      <div 
+      className = "mb-4 flex flex-wrap items-center gap-4"
+      >
         <input
           type="text"
           placeholder="Search..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          style={{
-            padding: "0.5rem 1rem",
-            borderRadius: "6px",
-            border: "1px solid #ccc",
-            flexGrow: 1,
-            minWidth: "180px",
-            maxWidth: "400px",
-          }}
+          className="p-2 rounded border border-gray-300 flex-grow min-w-[180px] max-w-[400px]"
         />
-        <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+        <div className="flex flex-wrap gap-2">
           <button
             onClick={() => handleTabChange("warframes")}
-            style={{
-              padding: "0.5rem 1rem",
-              backgroundColor: selectedTab === "warframes" ? "#007bff" : "#e0e0e0",
-              color: selectedTab === "warframes" ? "#fff" : "#000",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-            }}
+            className={`px-4 py-2 rounded 
+            transition-colors duration-300
+            ${selectedTab === "warframes" ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'}`}
           >
             Warframes
           </button>
           <button
             onClick={() => handleTabChange("weapons")}
-            style={{
-              padding: "0.5rem 1rem",
-              backgroundColor: selectedTab === "weapons" ? "#007bff" : "#e0e0e0",
-              color: selectedTab === "weapons" ? "#fff" : "#000",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-            }}
+            className={`px-4 py-2 rounded 
+            transition-colors duration-300
+            ${selectedTab === "weapons" ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'}`}
           >
             Weapons
           </button>
           <button
             onClick={() => handleTabChange("companions")}
-            style={{
-              padding: "0.5rem 1rem",
-              backgroundColor: selectedTab === "companions" ? "#007bff" : "#e0e0e0",
-              color: selectedTab === "companions" ? "#fff" : "#000",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-            }}
+            className={`px-4 py-2 rounded 
+            transition-colors duration-300
+            ${selectedTab === "companions" ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'}`}
           >
             Companions
           </button>
           <button
             onClick={() => handleTabChange("archwings")}
-            style={{
-              padding: "0.5rem 1rem",
-              backgroundColor: selectedTab === "archwings" ? "#007bff" : "#e0e0e0",
-              color: selectedTab === "archwings" ? "#fff" : "#000",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-            }}
+            className={`px-4 py-2 rounded 
+            transition-colors duration-300
+            ${selectedTab === "archwings" ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'}`}
           >
             Archwing
           </button>
           <button
             onClick={() => handleTabChange("activities")}
-            style={{
-              padding: "0.5rem 1rem",
-              backgroundColor: selectedTab === "activities" ? "#007bff" : "#e0e0e0",
-              color: selectedTab === "activities" ? "#fff" : "#000",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-            }}
+            className={`px-4 py-2 rounded 
+            transition-colors duration-300
+            ${selectedTab === "activities" ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'}`}
           >
             Dailies/Weeklies
           </button>
@@ -228,41 +162,35 @@ const IndexPage = () => {
         <div>
           {!user ? (
             <>
-              <button onClick={() => openLogin(false)} style={authButtonStyle}>Sign In</button>
-              <button onClick={() => openLogin(true)} style={authButtonStyle}>Sign Up</button>
+              <button onClick={() => openLogin(false)} className="px-1.5 py-3 rounded-md bg-blue-500 text-white cursor-pointer">Sign In</button>
+              <button onClick={() => openLogin(true)} className="px-1.5 py-3 rounded-md bg-blue-500 text-white cursor-pointer">Sign Up</button>
             </>
           ) : (
             <>
-              <span style={{ fontSize: "0.9rem" }}>{user.email}</span>
-              <button onClick={handleLogout} style={authButtonStyle}>Log Out</button>
+              <span className="text-sm">{user.email}</span>
+              <button onClick={handleLogout} className="px-1.5 py-3 rounded-md bg-blue-500 text-white cursor-pointer">Log Out</button>
             </>
           )}
         </div>
       </div>
       <div
-        style={{
-          marginBottom: "1.5rem",
-          display: "flex",
-          gap: "2rem",
-          alignItems: "center",
-          flexWrap: "wrap",
-        }}
+        className="mb-4 flex flex-wrap items-center gap-4"
       >
-        <label style={{ display: "flex", alignItems: "center" }}>
+        <label className="flex items-center cursor-pointer">
           <input
             type="checkbox"
             checked={moveSelectedToEnd}
             onChange={(e) => setMoveSelectedToEnd(e.target.checked)}
-            style={{ marginRight: "0.5rem" }}
+            className="mr-2"
           />
           Move selected to end
         </label>
-        <label style={{ display: "flex", alignItems: "center" }}>
+        <label className="flex items-center cursor-pointer">
           <input
             type="checkbox"
             checked={hideSelected}
             onChange={(e) => setHideSelected(e.target.checked)}
-            style={{ marginRight: "0.5rem" }}
+            className="mr-2"
           />
           Hide selected
         </label>
@@ -274,7 +202,7 @@ const IndexPage = () => {
           moveSelectedToEnd={moveSelectedToEnd}
           hideSelected={hideSelected}
           user_id={!user ? null : user.id} />}
-        {selectedTab === "weapons" && <WeaponsTab 
+        {/*{selectedTab === "weapons" && <WeaponsTab 
           searchQuery={searchQuery}
           moveSelectedToEnd={moveSelectedToEnd}
           hideSelected={hideSelected}/>}
@@ -285,34 +213,21 @@ const IndexPage = () => {
         {selectedTab === "archwings" && <ArchwingsTab 
           searchQuery={searchQuery}
           moveSelectedToEnd={moveSelectedToEnd}
-          hideSelected={hideSelected}/>}
+          hideSelected={hideSelected}/>}*/}
         {selectedTab === "activities" && <ActivitiesTab 
           />}
       </div>
     </div>
     {showAuthModal && (
       <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          backgroundColor: "rgba(0,0,0,0.5)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 9999,
-        }}
+        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+        onClick={() => setShowAuthModal(false)}
       >
         <div
-          style={{
-            background: "#fff",
-            padding: "2rem",
-            borderRadius: "12px",
-            width: "100%",
-            maxWidth: "400px",
-            boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
-          }}
+          className="bg-white p-8 rounded-xl w-full max-w-md shadow-lg"
+          onClick={(e) => e.stopPropagation()}
         >
-          <h2 style={{ marginBottom: "1rem" }}>
+          <h2 className="mb-4">
             {isSignup ? "Sign Up" : "Sign In"}
           </h2>
 
@@ -321,7 +236,7 @@ const IndexPage = () => {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            style={modalInputStyle}
+            className="w-full px-2.5 py-3 mb-3 rounded-md border border-gray-300"
           />
 
           <input
@@ -329,26 +244,26 @@ const IndexPage = () => {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            style={modalInputStyle}
+            className="w-full px-2.5 py-3 mb-3 rounded-md border border-gray-300"
           />
 
           {authError && (
-            <div style={{ color: "red", marginBottom: "0.5rem" }}>
+            <div className="text-red-500 mb-2">
               {authError}
             </div>
           )}
 
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <div className="flex justify-between">
             <button
               onClick={() => setShowAuthModal(false)}
-              style={secondaryButtonStyle}
+              className="px-1.5 py-3 rounded-md bg-blue-50 cursor-pointer"
             >
               Cancel
             </button>
 
             <button
               onClick={isSignup ? handleSignup : handleLogin}
-              style={authButtonStyle}
+              className="px-1.5 py-3 rounded-md bg-blue-500 text-white cursor-pointer"
             >
               {isSignup ? "Create Account" : "Login"}
             </button>

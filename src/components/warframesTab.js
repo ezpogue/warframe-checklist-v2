@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ChecklistCard from "./checklistItem.js";
 import useSearchFilter from "../hooks/searchFilter.js";
 import { supabase } from "../lib/supabaseClient";
+import debounce from "lodash/debounce";
 
 const WarframesTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id }) => {
   const [warframes, setWarframes] = useState([]);
@@ -10,6 +11,7 @@ const WarframesTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id })
   useEffect(() => {
     if (!user_id) return;
     const fetchWarframes = async () => {
+      console.log("Fetching Warframes");
       const{data: warframeData, error: warframeError} = await supabase.from("items").select(`id, name, img_name, category, product_category, wikia_url, masterable`).eq("category", "Warframes").order("name", { ascending: true });
       console.log("Warframes fetched:", warframeData);
 
@@ -39,12 +41,23 @@ const WarframesTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id })
   }, [user_id]);
 
   const handleSelectionChange = (warframeName, isSelected) => {
-    setSelectedItems((prev) => ({
-      ...prev,
-      [warframeName]: isSelected,
-    }));
-  };
+     setSelectedItems((prev) => {
+      const newState = { ...prev, [warframeName]: isSelected };
 
+      const warframe = warframes.find(w => w.name === warframeName);
+      if (!warframe) return newState;
+
+      pendingUpdates.current.push({
+      user_id,
+      item_id: warframe.id,
+      owned: isSelected
+    });
+
+      debouncedUpdate();
+
+      return newState;
+    });
+  };
   const excluded = ["Helminth", "Excalibur Prime"];
   const filteredWarframes = useSearchFilter({
     items: warframes.filter(wf => !excluded.includes(wf.name)),
@@ -54,19 +67,41 @@ const WarframesTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id })
     moveSelectedToEnd,
   });
 
+  const pendingUpdates = useRef([]);
+  const debouncedUpdate = useRef(
+  debounce(async () => {
+    if (pendingUpdates.current.length === 0) return;
+
+    const updates = [...pendingUpdates.current];
+    pendingUpdates.current = [];
+
+    try {
+      for (const update of updates) {
+        const { user_id, item_id, owned } = update;
+        //console.log("Updating item:", update);
+        const { data, error } = await supabase
+          .from("user_items")
+          .update({ owned })
+          .eq("user_id", user_id)
+          .eq("item_id", item_id);
+
+        if (error) console.error("Error updating user item:", error);
+        else console.log("Updated user item:", data);
+      }
+    } catch (err) {
+      console.error("Unexpected error:", err);
+    }
+  }, 500)
+).current;
+
   return (
-    <div style={{ margin: "0 auto" }}>
+    <div className="max-w-[1400px] mx-auto px-4">
       <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "1rem",
-          justifyContent: "flex-start",
-          marginInline: "auto",
-        }}
+      className="grid gap-4 justify-center" 
+       style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}
       >
         {filteredWarframes.map((warframe) => (
-          <div key={warframe.id} style={{ maxWidth: "340px" }}>
+          <div key={warframe.id} >
             <ChecklistCard
               item_id={warframe.id}
               name={warframe.name}

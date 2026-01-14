@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import usePersistentLocalStorage from "../hooks/usePersistentLocalStorage";
 import { supabase } from "../lib/supabaseClient";
+import {debounce} from "lodash";
 
 const ChecklistCard = ({
   item_id,
@@ -32,10 +33,11 @@ const ChecklistCard = ({
     "Eye-Eye Rotoblade", "Marquise Thyst", "Mirewinder Parallel Biode", "Sapcaddy Venedo Case", "Radian Sentirum", 
     "Recaster Neural Relay", "Star Crimzian", "Synathid Ecosynth Analyzer", "Gorgaricus Spore", "Goblite Tears", 
     "Travocyte Alloy", "Axidrol Alloy", "Scrap", "Smooth Phasmin", "Kriller Thermal Laser", "Marquise Veridos", 
-    "Fish Scales", "Nistlepod", "Pyrotic Alloy", "Tear Azurite", "Condroc Wing", "Temporal Dust"
+    "Fish Scales", "Nistlepod", "Pyrotic Alloy", "Tear Azurite", "Condroc Wing", "Temporal Dust", "Dull Button"
   ];*/
 
   useEffect(() => {
+    if (!user_id) return;
     const fetchParts = async () => {
       const {data: partsData, error: partsError} = await supabase.from("item_parts").select("id, item_id, item_name, part_name, quantity").eq("item_id", item_id);
       if(partsError){
@@ -70,32 +72,14 @@ const ChecklistCard = ({
   return (
     <div
       onClick={handleCardClick}
-      style={{
-        display: "flex",
-        height: "75%",
-        alignItems: "center",
-        flex: "1 1 300px",
-        maxWidth: "500px",
-        minWidth: "300px",
-        padding: "1rem",
-        position: "relative",
-        borderRadius: "8px",
-        boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-        backgroundColor: "#fff",
-        border: isSelected ? "3px solid #4caf50" : "3px solid #ccc",
-        transition: "border 0.4s ease",
-      }}
+      className={`flex items-center flex-1 min-w-[300px] max-w-[500px] p-4 rounded-lg shadow-md bg-white relative 
+        ${isSelected ? 'border-4 border-green-500' : 'border-4 border-gray-300'}
+        transition-all duration-400 ease-linear
+        transform hover:scale-[1.02] hover:shadow-lg cursor-pointer`}
     >
       {isSelected && (
         <div
-          style={{
-            position: "absolute",
-            top: "10px",
-            right: "10px",
-            fontSize: "24px",
-            color: "#4caf50",
-            zIndex: 1,
-          }}
+          className="absolute top-2.5 right-2.5 text-2xl text-green-500 z-10"
         >
           ✔
         </div>
@@ -103,45 +87,33 @@ const ChecklistCard = ({
   
       {/* Inner Content Wrapper with grayscale + dim */}
       <div
-        style={{
-          display: "flex",
-          filter: isSelected ? "grayscale(80%) brightness(85%)" : "none",
-          transition: "filter 0.4s ease",
-        }}
+        className={`flex transition-filter duration-400 ease-linear
+          ${isSelected ? 'filter grayscale brightness-75' : ''}`}
       >
         {/* Image Section */}
-        <div style={{ flexShrink: 0, marginRight: "1rem" }}>
+        <div className="flex-shrink-0 mr-4">
           <img
             src={`https://cdn.warframestat.us/img/${imageName}`}
             alt={name}
-            style={{
-              width: "80px",
-              height: "80px",
-              objectFit: "cover",
-              borderRadius: "6px",
-            }}
+            className="w-20 h-20 object-cover rounded-lg"
           />
         </div>
   
         {/* Content Section */}
         <div>
           <h3
-            style={{
-              margin: "0 0 0.5rem",
-              wordWrap: "break-word",
-              overflowWrap: "break-word",
-              whiteSpace: "normal",
-            }}
+            className="m-0 mb-2 word-wrap break-word overflow-wrap break-word whitespace-normal"
           >
             <a
               href={wiki}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ color: "inherit", textDecoration: "none" }}
+              className="inline-block text-gray-900 no-underline transition transform duration-200 ease-in-out hover:scale-105 hover:text-black"
               onClick={handleLinkClick}
             >
               {name}
             </a>
+            
           </h3>
         </div>
       </div>

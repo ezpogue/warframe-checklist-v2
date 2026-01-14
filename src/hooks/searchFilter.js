@@ -8,6 +8,7 @@ const useSearchFilter = ({
     moveSelectedToEnd = false,
 }) => {
     return useMemo(() => {
+        console.log(items);
         let result = items.filter((item) => 
             item.name.toLowerCase().includes(searchQuery.toLowerCase())
         );
