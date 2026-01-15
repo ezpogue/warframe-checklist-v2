@@ -12,54 +12,45 @@ const formatTime = (timeInMs) => {
     .padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 };
 
-
-// Function to calculate the next reset time based on current time
-const getNextResetTime = (resetTime) => {
-  const now = new Date();
-  const targetTime = new Date(resetTime);
-  if (now > targetTime) {
-    targetTime.setUTCDate(targetTime.getUTCDate() + 1); // Move to the next day
-  }
-  
-  return targetTime;
+const toMillis = (t) => {
+  if (t instanceof Date) return t.getTime();
+  if (typeof t === "number") return t;
+  return NaN;
 };
 
-const CountdownTimer = ({ resetTime, title }) => {
+
+
+// Function to calculate the next reset time based on current time
+const CountdownTimer = ({ targetTime, title }) => {
   const [timeRemaining, setTimeRemaining] = useState(() => {
-    const nextResetTime = getNextResetTime(resetTime);
-    return nextResetTime - Date.now(); // Initialize with the time difference
+    const targetMs = toMillis(targetTime);
+    return Number.isNaN(targetMs) ? 0 : Math.max(0, targetMs - Date.now());
   });
 
   useEffect(() => {
-    const updateRemainingTime = () => {
-      const nextResetTime = getNextResetTime(resetTime);
-      const newTimeRemaining = nextResetTime - Date.now();
+    if (!targetTime) return;
 
-      if (newTimeRemaining <= 0) {
-        setTimeRemaining(0);
-      } else {
-        setTimeRemaining(newTimeRemaining);
-      }
-    };
+    const interval = setInterval(() => {
+      const targetMs = toMillis(targetTime);
+      if (Number.isNaN(targetMs)) return;
 
-    // Update immediately when the component is mounted
-    updateRemainingTime();
+      setTimeRemaining(Math.max(0, targetMs - Date.now()));
+    }, 1000);
 
-    // Update every second
-    const interval = setInterval(updateRemainingTime, 1000);
-
-    // Cleanup on unmount
     return () => clearInterval(interval);
-  }, [resetTime]);
+  }, [targetTime]);
 
   return (
-    <div style={{ marginBottom: "1rem", textAlign: "center" }}>
+    <div className="mb-4 text-center">
       <h4>{title}</h4>
-      <div style={{ fontSize: "2rem", fontWeight: "bold" }}>
+        <div className="text-4xl font-bold">
         {formatTime(timeRemaining)}
       </div>
     </div>
   );
 };
+
+
+
 
 export default CountdownTimer;

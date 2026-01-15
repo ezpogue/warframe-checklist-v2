@@ -5,7 +5,7 @@ import { supabase } from "../lib/supabaseClient";
 import debounce from "lodash/debounce";
 
 const ArchwingTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id }) => {
-  const [archwing, setArchwing] = useState([]);
+  const [archwings, setArchwing] = useState([]);
   const [selectedItems, setSelectedItems] = useState({});
 
   useEffect(() => {
@@ -64,7 +64,7 @@ const ArchwingTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id }) 
      setSelectedItems((prev) => {
       const newState = { ...prev, [archwingName]: isSelected };
 
-      const archwing = archwing.find(w => w.name === archwingName);
+      const archwing = archwings.find(w => w.name === archwingName);
       if (!archwing) return newState;
 
       pendingUpdates.current.push({
@@ -81,7 +81,7 @@ const ArchwingTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id }) 
   const excluded = ["Catchmoon", "Gaze", "Rattleguts", "Tombfinger"];
   const included = ["Raplak Prism", "Shwaak Prism", "Granmu Prism", "Rahn Prism", "Cantic Prism", "Lega Prism", "Klamora Prism"];
   const filteredArchwings = useSearchFilter({
-    items: archwing.filter(a => (!excluded.includes(a.name) && a.masterable) || included.includes(a.name)),
+    items: archwings.filter(a => (!excluded.includes(a.name) && a.masterable) || included.includes(a.name)),
     searchQuery,
     selectedItems,
     hideSelected,

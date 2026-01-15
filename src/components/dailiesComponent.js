@@ -1,31 +1,30 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ActivityItem from "./activityItem";
+import { supabase } from "../lib/supabaseClient";
 
-const dailyActivities = [
-  { name: "Sortie", key: "daily_sortie" },
-  { name: "Incursions", key: "daily_incursions" },
-  { name: "Duviri Harvest", key: "daily_duviri" },
-  { name: "1999 Dating Sim", key: "daily_dating" },
-  { name: "Nightwave Daily", key: "daily_nw-daily" },
-  { name: "Focus Cap", key: "daily_focus" },
-  { name: "Check Tenet Melees", key: "daily_tenet" },
-  { name: "Check Coda Weapons", key: "daily_coda" },
-];
 
-const DailiesComponent = ({resetTrigger}) => {
+const DailiesComponent = ({user_id, resetRefs}) => {
+  const [dailyActivities, setDailyActivities] = React.useState([]);
+  useEffect(() => {
+    const fetchDailies = async () => {
+      const {data: dailiesData, error} = await supabase.from("activities").select(`name, id, category`).eq("category", "Dailies").order("name", { ascending: true });
+      if(error){
+        console.error("Error fetching daily activities:", error);
+        return;
+      }
+      setDailyActivities(dailiesData);
+      console.log("Daily activities fetched:", dailiesData);
+    }
+    fetchDailies();
+  }, [user_id]);
   return (
     <div>
       <h3>Dailies</h3>
       <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "flex-start",
-          marginInline: "auto",
-        }}
+        className="flex-wrap justify-start mx-auto"
       >
         {dailyActivities.map((activity) => (
-          <ActivityItem name={activity.name} keyName={activity.key} key={activity.key} resetTrigger={resetTrigger} />
+          <ActivityItem user_id={user_id} name={activity.name} category={activity.category} activity_id={activity.id} resetRefs={resetRefs} />
         ))}
       </div>
     </div>

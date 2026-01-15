@@ -1,36 +1,30 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ActivityItem from "./activityItem";
+import { supabase } from "../lib/supabaseClient";
 
-const weeklyActivities = [
-  { name: "Trade in Riven Slivers", key: "weekly_slivers" },
-  { name: "Maroo Hunt", key: "weekly_maroo" },
-  { name: "Kahl Mission", key: "weekly_kahl" },
-  { name: "Archon Hunt", key: "weekly_archon" },
-  { name: "Netracells", key: "weekly_netracells" },
-  { name: "Deep Archimedea", key: "weekly_eda" },
-  { name: "Temporal Archimedea", key: "weekly_eta" },
-  { name: "1999 Calendar", key: "weekly_calendar" },
-  { name: "Nightwave Weekly", key: "weekly_nw" },
-  { name: "Circuit", key: "weekly_circuit" },
-  { name: "Steel Path Circuit", key: "weekly_sp-circuit" },
-  { name: "Trade in Steel Essence", key: "weekly_teshin" },
-  { name: "Buy Archon Shard from Bird 3", key: "weekly_bird3" },
-];
 
-const WeekliesComponent = ({resetTrigger}) => {
+const WeekliesComponent = ({user_id, resetRefs}) => {
+  const [weeklyActivities, setWeeklyActivities] = React.useState([]);
+  useEffect(() => {
+    const fetchWeeklies = async () => {
+      const {data: weekliesData, error} = await supabase.from("activities").select(`name, id, category`).eq("category", "Weeklies").order("name", { ascending: true });
+      if(error){
+        console.error("Error fetching weekly activities:", error);
+        return;
+      }
+      setWeeklyActivities(weekliesData);
+      console.log("Weekly activities fetched:", weekliesData);
+    }
+    fetchWeeklies();
+  }, [user_id]);
   return (
     <div>
       <h3>Weeklies</h3>
       <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "flex-start",
-          marginInline: "auto",
-        }}
+        className="flex-wrap justify-start mx-auto"
       >
         {weeklyActivities.map((activity) => (
-          <ActivityItem name={activity.name} keyName={activity.key} key={activity.key} resetTrigger={resetTrigger} />
+          <ActivityItem user_id={user_id} name={activity.name} category={activity.category} activity_id={activity.id} resetRefs={resetRefs} />
         ))}
       </div>
     </div>

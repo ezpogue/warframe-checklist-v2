@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import usePersistentLocalStorage from "../hooks/usePersistentLocalStorage";
 import { supabase } from "../lib/supabaseClient";
-import {debounce} from "lodash";
+import {debounce, get} from "lodash";
+import { useTheme } from "../lib/themeProvider";
+import clsx from "clsx";
+
 
 const ChecklistCard = React.memo(({
   item_id,
@@ -12,6 +14,7 @@ const ChecklistCard = React.memo(({
   onSelectionChange,
   user_id
 }) => {
+  const { theme } = useTheme();
   const [components, setComponents] = useState([]);
 
 
@@ -140,19 +143,61 @@ const ChecklistCard = React.memo(({
     );
   };
 
+  const getCardStyles = (isSelected) => clsx(
+    'flex items-center flex-1 min-w-[320px] max-w-[500px] p-4 ',
+    'rounded-lg shadow-md relative h-full transition-all duration-400 ease-linear',
+    'transform hover:scale-[1.02] hover:shadow-lg cursor-pointer border-4',{
+      'border-void-accent': isSelected && theme === 'void',
+      'border-void-border': !isSelected && theme === 'void',
+      'bg-void-card text-void-text': theme === 'void',
+      'border-corpus-accent': isSelected && theme === 'corpus',
+      'border-corpus-border': !isSelected && theme === 'corpus',
+      'bg-corpus-card text-corpus-text': theme === 'corpus',
+      'border-grineer-accent': isSelected && theme === 'grineer',
+      'border-grineer-border': !isSelected && theme === 'grineer',
+      'bg-grineer-card text-grineer-text': theme === 'grineer',
+      'border-orokin-accent': isSelected && theme === 'orokin',
+      'border-orokin-border': !isSelected && theme === 'orokin',
+      'bg-orokin-card text-orokin-text': theme === 'orokin',
+      'border-dark-accent': isSelected && theme === 'dark',
+      'border-dark-border': !isSelected && theme === 'dark',
+      'bg-dark-card text-dark-text': theme === 'dark',
+      'border-classic-accent': isSelected && theme === 'classic',
+      'border-classic-border': !isSelected && theme === 'classic',
+      'bg-classic-card text-classic-text': theme === 'classic',
+    }
+  );
 
+  const getCardCheckStyles = (isSelected) => clsx(
+    'absolute top-2.5 right-2.5 text-2xl z-10',{
+      'text-void-accent': theme === 'void',
+      'text-corpus-accent': theme === 'corpus',
+      'text-grineer-accent': theme === 'grineer',
+      'text-orokin-accent': theme === 'orokin',
+      'text-dark-accent': theme === 'dark',
+      'text-classic-accent': theme === 'classic',
+    }
+  );
+
+  const getCheckboxStyles = () => clsx(
+    'scale-150 cursor-pointer',{
+    'accent-void-accent': theme === 'void',
+    'accent-corpus-accent': theme === 'corpus',
+    'accent-grineer-accent': theme === 'grineer',
+    'accent-orokin-accent': theme === 'orokin',
+    'accent-dark-accent': theme === 'dark',
+    'accent-classic-accent': theme === 'classic',
+  }
+  );
 
   return (
     <div
       onClick={handleCardClick}
-      className={`flex items-center flex-1 min-w-[320px] max-w-[500px] p-4 rounded-lg shadow-md bg-white relative h-full  
-        ${isSelected ? 'border-4 border-green-500' : 'border-4 border-gray-300'}
-        transition-all duration-400 ease-linear
-        transform hover:scale-[1.02] hover:shadow-lg cursor-pointer`}
+      className={getCardStyles(isSelected)}
     >
       {isSelected && (
         <div
-          className="absolute top-2.5 right-2.5 text-2xl text-green-500 z-10"
+          className={getCardCheckStyles(isSelected)}
         >
           ✔
         </div>
@@ -181,7 +226,7 @@ const ChecklistCard = React.memo(({
               href={wiki}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block text-gray-900 no-underline transition transform duration-200 ease-in-out hover:scale-105 hover:text-black"
+              className="inline-block no-underline transition transform duration-200 ease-in-out hover:scale-105"
               onClick={handleLinkClick}
             >
               {name}
@@ -197,7 +242,7 @@ const ChecklistCard = React.memo(({
                     <input
                       key={index}
                       type="checkbox"
-                      className="scale-150 cursor-pointer"
+                      className={getCheckboxStyles()}
                       checked={checked}
                       onChange={() => handleCheckboxToggle(comp, index)}
                       onClick={(e) => e.stopPropagation()}

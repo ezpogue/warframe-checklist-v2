@@ -4,8 +4,12 @@
 
 body {
     font-family: "Roboto", sans-serif;
-    background-color: #f4f4f9;
+    background-color: #FFFFFF;
     color: #333;
     margin: 0;
     padding: 0;
   }
+
+html, body {
+  min-height: 100%;
+}

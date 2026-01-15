@@ -3,8 +3,11 @@ import ChecklistCard from "./checklistItem.js";
 import useSearchFilter from "../hooks/searchFilter.js";
 import { supabase } from "../lib/supabaseClient";
 import debounce from "lodash/debounce";
+import { useTheme } from "../lib/themeProvider.js";
+
 
 const WarframesTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id }) => {
+  const { theme } = useTheme();
   const [warframes, setWarframes] = useState([]);
   const [selectedItems, setSelectedItems] = useState({});
 

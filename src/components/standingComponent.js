@@ -1,36 +1,30 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ActivityItem from "./activityItem";
+import { supabase } from "../lib/supabaseClient";
 
-const standingActivities = [
-  { name: "Pledged Syndicate", key: "daily_pledge" },
-  { name: "Ostron", key: "daily_ostron" },
-  { name: "The Quills", key: "daily_quills" },
-  { name: "Solaris United", key: "daily_solaris" },
-  { name: "Ventkids", key: "daily_ventkids" },
-  { name: "Vox Solaris", key: "daily_vox" },
-  { name: "Entrati", key: "daily_entrati" },
-  { name: "Necraloid", key: "daily_necraloid" },
-  { name: "Cavia", key: "daily_cavia" },
-  { name: "The Holdfasts", key: "daily_holdfasts" },
-  { name: "The Hex", key: "daily_hex" },
-  { name: "Cephalon Simaris", key: "daily_simaris" },
-  { name: "Conclave", key: "daily_conclave" },
-];
 
-const StandingComponent = ({resetTrigger}) => {
+const StandingComponent = ({user_id, resetRefs}) => {
+  const [standingActivities, setStandingActivities] = React.useState([]);
+  useEffect(() => {
+    const fetchStandings = async () => {
+      const {data: standingData, error} = await supabase.from("activities").select(`name, id, category`).eq("category", "Standing").order("name", { ascending: true });
+      if(error){
+        console.error("Error fetching standing activities:", error);
+        return;
+      }
+      setStandingActivities(standingData);
+      console.log("Standing activities fetched:", standingData);
+    }
+    fetchStandings();
+  }, [user_id]);  
   return (
     <div>
       <h3>Standing</h3>
       <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "flex-start",
-          marginInline: "auto",
-        }}
+        className="flex-wrap justify-start mx-auto"
       >
         {standingActivities.map((activity) => (
-          <ActivityItem name={activity.name} keyName={activity.key} key={activity.key} resetTrigger={resetTrigger} />
+          <ActivityItem user_id={user_id} name={activity.name} category={activity.category} activity_id={activity.id} resetRefs={resetRefs} />
         ))}
       </div>
     </div>
