@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import ChecklistCard from "./checklistItem.js";
 import useSearchFilter from "../hooks/searchFilter.js";
 import { supabase } from "../lib/supabaseClient";
@@ -11,9 +11,9 @@ const WarframesTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id })
   useEffect(() => {
     if (!user_id) return;
     const fetchWarframes = async () => {
-      console.log("Fetching Warframes");
+      //console.log("Fetching Warframes");
       const{data: warframeData, error: warframeError} = await supabase.from("items").select(`id, name, img_name, category, product_category, wikia_url, masterable`).eq("category", "Warframes").order("name", { ascending: true });
-      console.log("Warframes fetched:", warframeData);
+      //console.log("Warframes fetched:", warframeData);
 
       if(warframeError){
         console.error("Error fetching Warframes:", warframeError);
@@ -22,10 +22,22 @@ const WarframesTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id })
 
       const warframeIDs = warframeData.map(wf => wf.id);
 
-      const {data: userWarframes, error: userWarframesError} = await supabase.from("user_items").select("item_id, owned").eq("user_id", user_id).in("item_id", warframeIDs);
-      if(userWarframesError){
-        console.error("Error fetching user Warframes:", userWarframesError);
-        return;
+      const chunkSize = 100;
+      let userWarframes = [];
+
+      for (let i = 0; i < warframeIDs.length; i += chunkSize) {
+        const chunk = warframeIDs.slice(i, i + chunkSize);
+        const { data, error } = await supabase
+          .from("user_items")
+          .select("item_id, owned")
+          .eq("user_id", user_id)
+          .in("item_id", chunk);
+
+        if (error) {
+          console.error("Error fetching user Warframes chunk:", error);
+          continue;
+        }
+        userWarframes = userWarframes.concat(data);
       }
 
       const ownedMap = {};
@@ -40,7 +52,7 @@ const WarframesTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id })
     fetchWarframes();
   }, [user_id]);
 
-  const handleSelectionChange = (warframeName, isSelected) => {
+  const handleSelectionChange = useCallback((warframeName, isSelected) => {
      setSelectedItems((prev) => {
       const newState = { ...prev, [warframeName]: isSelected };
 
@@ -57,10 +69,11 @@ const WarframesTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id })
 
       return newState;
     });
-  };
+  }, []);
   const excluded = ["Helminth", "Excalibur Prime"];
+  const included = [];
   const filteredWarframes = useSearchFilter({
-    items: warframes.filter(wf => !excluded.includes(wf.name)),
+    items: warframes.filter(wf => !excluded.includes(wf.name) || included.includes(wf.name)),
     searchQuery,
     selectedItems,
     hideSelected,
@@ -86,7 +99,7 @@ const WarframesTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id })
           .eq("item_id", item_id);
 
         if (error) console.error("Error updating user item:", error);
-        else console.log("Updated user item:", data);
+        //else console.log("Updated user item:", data);
       }
     } catch (err) {
       console.error("Unexpected error:", err);
@@ -95,13 +108,12 @@ const WarframesTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id })
 ).current;
 
   return (
-    <div className="max-w-[1400px] mx-auto px-4">
+    <div className="mx-auto px-4">
       <div
-      className="grid gap-4 justify-center" 
-       style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}
+      className="grid gap-5 justify-center grid-cols-[repeat(auto-fill,minmax(300px,1fr))]" 
       >
         {filteredWarframes.map((warframe) => (
-          <div key={warframe.id} >
+          <div key={warframe.id} className={warframe.hidden ? "hidden" : "block"}>
             <ChecklistCard
               item_id={warframe.id}
               name={warframe.name}

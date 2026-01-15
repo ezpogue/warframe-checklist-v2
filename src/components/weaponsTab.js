@@ -1,62 +1,138 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import ChecklistCard from "./checklistItem.js";
-import { withPrefix } from "gatsby";
-import usePersistentLocalStorage from "../hooks/usePersistentLocalStorage.js"
 import useSearchFilter from "../hooks/searchFilter.js";
+import { supabase } from "../lib/supabaseClient";
+import debounce from "lodash/debounce";
 
-const WeaponsTab = ({ searchQuery, moveSelectedToEnd, hideSelected }) => {
-  const localStorageKey = "weaponsKey";
+const WeaponsTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id }) => {
   const [weapons, setWeapons] = useState([]);
-  const [selectedItems, setSelectedItems] = usePersistentLocalStorage(localStorageKey);
+  const [selectedItems, setSelectedItems] = useState({});
 
   useEffect(() => {
-    async function fetchWeapons() {
-      const response = await fetch(withPrefix("/data/weapons.json"));
-      const data = await response.json();
-      const excluded = ["Lato Prime", "Skana Prime"]
-      const included = ["Catchmoon", "Gaze", "Rattleguts", "Sporelacer", "Tombfinger", "Vermisplicer", "Dokrahm", "Rabvee", "Sepfahn", "Plague Keewar", "Plague Kripath"]
-      const filtered = data.filter((weapon) => (weapon.masterable === true || included.includes(weapon.name)) && !excluded.includes(weapon.name));
-      setWeapons(filtered);
-    }
+    if (!user_id) return;
+    const fetchWeapons = async () => {
+      console.log("Fetching Weapons");
+      let page = 0;
+      let weaponData = [];
+      const batchsize = 1000;
+      let fetched;
+      do {
+        const{data: weaponBatch, error: weaponError} = await supabase.from("items").select(`id, name, img_name, category, product_category, wikia_url, masterable`).in("category", ["Primary", "Secondary", "Melee", "Misc"])
+          .order("name", { ascending: true }).range(page * batchsize, (page + 1) * batchsize - 1);
+        if(weaponError) throw weaponError;
+        fetched = weaponBatch.length;
+        weaponData = weaponData.concat(weaponBatch);
+        page++;
+      } while (fetched === batchsize);
+      console.log("Weapons fetched:", weaponData);
 
+      const weaponIDs = weaponData.map(w => w.id);
+      //console.log("Weapon IDs:", weaponIDs);
+      //console.log("User ID:", user_id);
+
+      const chunkSize = 100;
+      let userWeapons = [];
+
+      for (let i = 0; i < weaponIDs.length; i += chunkSize) {
+        const chunk = weaponIDs.slice(i, i + chunkSize);
+        const { data, error } = await supabase
+          .from("user_items")
+          .select("item_id, owned")
+          .eq("user_id", user_id)
+          .in("item_id", chunk);
+
+        if (error) {
+          console.error("Error fetching user Weapons chunk:", error);
+          continue;
+        }
+        userWeapons = userWeapons.concat(data);
+      }
+
+      const ownedMap = {};
+      userWeapons.forEach((row) => {
+        const match = weaponData.find(w => w.id === row.item_id);
+        if(match) ownedMap[match.name] = row.owned;
+      })
+
+      setWeapons(weaponData);
+      setSelectedItems(ownedMap);
+    };
     fetchWeapons();
+  }, [user_id]);
+
+  const handleSelectionChange = useCallback((weaponName, isSelected) => {
+     setSelectedItems((prev) => {
+      const newState = { ...prev, [weaponName]: isSelected };
+
+      const weapon = weapons.find(w => w.name === weaponName);
+      if (!weapon) return newState;
+
+      pendingUpdates.current.push({
+      user_id,
+      item_id: weapon.id,
+      owned: isSelected
+    });
+
+      debouncedUpdate();
+
+      return newState;
+    });
   }, []);
-
-  const handleSelectionChange = (weaponName, isSelected) => {
-    setSelectedItems((prev) => ({
-      ...prev,
-      [weaponName]: isSelected,
-    }));
-  };
-
+  const excluded = ["Lato Prime", "Skana Prime", "Ekwana Ii Jai", "Ekwana Ii Ruhang", "Ekwana Jai", "Ekwana Jai Ii", "Ekwana Ruhang", "Ekwana Ruhang Ii",
+    "Jai", "Jai Ii", "Ruhang", "Ruhang Ii", "Vargeet Ruhang", "Vargeet Jai", "Vargeet Ii Ruhang", "Vargeet Ii Jai", "Vargeet Ruhang Ii",
+    "Vargeet Jai Ii", "Jayap", "Korb", "Kroostra", "Kwath", "Laka", "Peye", "Seekalla", "Shtung", "Plague Akwin", "Plague Bokwin",
+    "Feverspine", "Bad Baby", "Flatbelly", "Needlenose", "Runway"];
+  const included = ["Balla", "Cyath", "Dehtat", "Dokrahm", "Kronsh", "Mewan", "Ooltha", "Rabvee", "Sepfahn", "Plague Keewar", "Plague Kripath", "Sporelacer", "Vermisplicer"];
   const filteredWeapons = useSearchFilter({
-    items: weapons,
+    items: weapons.filter(w => (!excluded.includes(w.name) && w.masterable) || included.includes(w.name)).filter(w => !w.id.includes("PvP")),
     searchQuery,
     selectedItems,
     hideSelected,
     moveSelectedToEnd,
   });
 
+  const pendingUpdates = useRef([]);
+  const debouncedUpdate = useRef(
+  debounce(async () => {
+    if (pendingUpdates.current.length === 0) return;
+
+    const updates = [...pendingUpdates.current];
+    pendingUpdates.current = [];
+
+    try {
+      for (const update of updates) {
+        const { user_id, item_id, owned } = update;
+        //console.log("Updating item:", update);
+        const { data, error } = await supabase
+          .from("user_items")
+          .update({ owned })
+          .eq("user_id", user_id)
+          .eq("item_id", item_id);
+
+        if (error) console.error("Error updating user item:", error);
+        else console.log("Updated user item:", data);
+      }
+    } catch (err) {
+      console.error("Unexpected error:", err);
+    }
+  }, 500)
+).current;
+
   return (
-    <div style={{ margin: "0 auto" }}>
+    <div className="mx-auto px-4">
       <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "1rem",
-          justifyContent: "flex-start",
-          marginInline: "auto",
-        }}
+      className="grid gap-5 justify-center grid-cols-[repeat(auto-fill,minmax(300px,1fr))]" 
       >
         {filteredWeapons.map((weapon) => (
-          <div key={weapon.uniqueName} style={{ maxWidth: "330px" }}>
+          <div key={weapon.id} className={weapon.hidden ? "hidden" : "block"}>
             <ChecklistCard
+              item_id={weapon.id}
               name={weapon.name}
-              imageName={weapon.imageName}
-              components={weapon.components}
-              wiki={weapon.wikiaUrl}
-              isSelected={selectedItems[weapon.name] || false} // Pass current selection state
-              onSelectionChange={handleSelectionChange} // Pass the callback function to update the parent state
+              imageName={weapon.img_name}
+              wiki={weapon.wikia_url}
+              isSelected={selectedItems[weapon.name] || false}
+              onSelectionChange={handleSelectionChange}
+              user_id={user_id}
             />
           </div>
         ))}

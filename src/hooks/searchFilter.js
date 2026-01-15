@@ -1,37 +1,32 @@
-import {useMemo} from "react";
+import { useMemo } from "react";
 
 const useSearchFilter = ({
-    items = [],
-    searchQuery = '',
-    selectedItems = {},
-    hideSelected = false,
-    moveSelectedToEnd = false,
+  items = [],
+  searchQuery = '',
+  selectedItems = {},
+  hideSelected = false,
+  moveSelectedToEnd = false,
 }) => {
-    return useMemo(() => {
-        console.log(items);
-        let result = items.filter((item) => 
-            item.name.toLowerCase().includes(searchQuery.toLowerCase())
-        );
+  return useMemo(() => {
+    let processed = items.map(item => {
+      const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
+      const isSelected = !!selectedItems[item.name];
+      const hidden = !matchesSearch || (hideSelected && isSelected);
 
-        if(hideSelected){
-            result = result.filter((item) => !selectedItems[item.name]);
+      return { ...item, hidden, isSelected };
+    });
+
+    if (moveSelectedToEnd) {
+      processed.sort((a, b) => {
+        if (a.isSelected !== b.isSelected) {
+          return a.isSelected ? 1 : -1;
         }
+        return 0;
+      });
+    }
 
-        if (moveSelectedToEnd) {
-            result.sort((a, b) => {
-              const aSelected = selectedItems[a.name] || false;
-              const bSelected = selectedItems[b.name] || false;
-      
-              if (aSelected !== bSelected) {
-                return aSelected ? 1 : -1;
-              }
-      
-              return 0;
-            });
-        }
-
-        return result;
-    }, [items, searchQuery, selectedItems, hideSelected, moveSelectedToEnd]);
+    return processed;
+  }, [items, searchQuery, selectedItems, hideSelected, moveSelectedToEnd]);
 };
 
 export default useSearchFilter;

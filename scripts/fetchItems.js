@@ -3,6 +3,7 @@ import fs from 'fs';
 import Items from '@wfcd/items'; //if not getting new items, run npm update @wfcd/items
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
+import path from 'path';
 
 dotenv.config({ path: `.env.${process.env.NODE_ENV || 'development'}` });
 
@@ -13,7 +14,7 @@ function mapItem(item) {
     id: item.uniqueName,
     name: item.name,
     img_name: item.imageName,
-    category: item.category,
+    category: (item.productCategory === "SentinelWeapons") ? "SentinelWeapons" : item.category,
     product_category: item.productCategory,
     wikia_url: item.wikiaUrl,
     masterable: item.masterable
@@ -22,7 +23,7 @@ function mapItem(item) {
 
 function mapItemParts(item, part) {
   return{
-    id: `${item.uniqueName}-${part.uniqueName}`,
+    part_id: part.uniqueName,
     item_id: item.uniqueName,
     item_name: item.name,
     part_name: part.name,
@@ -46,20 +47,24 @@ if (lastVersion === currentVersion) {
 
 console.log(`🔄 Updating items: ${lastVersion || 'none'} -> ${currentVersion}`);
 
+
+
 const categories = {
   warframes: item => item.category === 'Warframes',
   weapons: item => ['Primary', 'Secondary', 'Melee'].includes(item.category) && !['SentinelWeapons'].includes(item.productCategory),
   companions: item => ['Sentinels', 'SentinelWeapons', 'Pets'].includes(item.category) || ( ['Primary', 'Secondary', 'Melee'].includes(item.category) && ['SentinelWeapons'].includes(item.productCategory)),
-  archwing: item => ['Arch-Gun', 'Arch-Melee'].includes(item.category),
+  archwing: item => ['Arch-Gun', 'Arch-Melee', 'Archwing'].includes(item.category),
+  misc: item => ['Misc'].includes(item.category),
 };
 
 (async () => {
   try {
     const options = {
-      category: ['Warframes', 'Primary', 'Secondary', 'Melee', 'Sentinels', 'SentinelWeapons', 'Pets', 'Arch-Gun', 'Arch-Melee'],
+      category: ['Warframes', 'Primary', 'Secondary', 'Melee', 'Misc', 'Sentinels', 'SentinelWeapons', 'Pets', 'Arch-Gun', 'Arch-Melee', 'Archwing'],
     };
-    
-    const itemsInstance = await new Items(options);
+
+
+    const itemsInstance = await new Items({ ...options, refresh: true });
     
     const allItems = itemsInstance;
 
@@ -80,11 +85,15 @@ const categories = {
       }
       const dedupedItemParts = new Map();
       for (const part of allParts){
-        if(dedupedItemParts.has(part.id)) dedupedItemParts.get(part.id).quantity += part.quantity;
-        else dedupedItemParts.set(part.id, {...part});
+        const key = `${part.part_id}::${part.item_id}`;
+        if (dedupedItemParts.has(key)) {
+          dedupedItemParts.get(key).quantity += part.quantity;
+        } else {
+          dedupedItemParts.set(key, { ...part });
+        }
       }
       const dedupedPartsArray = Array.from(dedupedItemParts.values());
-      const{data2, error2} = await supabase.from('item_parts').upsert(dedupedPartsArray, {onConflict: ['id']});
+      const{data2, error2} = await supabase.from('item_parts').upsert(dedupedPartsArray, {onConflict: ['part_id', 'item_id']});
       if(error2) console.error(`❌ Failed to upsert ${category} parts:`, error);
       else console.log(`✅ Upserted ${data2?.length ?? filtered.length} ${category} parts to Supabase`);
       console.log(`${category} completed`);

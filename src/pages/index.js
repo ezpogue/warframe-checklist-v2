@@ -148,7 +148,7 @@ const IndexPage = () => {
             transition-colors duration-300
             ${selectedTab === "archwings" ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'}`}
           >
-            Archwing
+            Archwing/Misc
           </button>
           <button
             onClick={() => handleTabChange("activities")}
@@ -197,25 +197,37 @@ const IndexPage = () => {
       </div>
 
       <div>
-        {selectedTab === "warframes" && <WarframesTab 
+        <div className={selectedTab === "warframes" ? "block" : "hidden"}>
+          <WarframesTab 
           searchQuery={searchQuery}
           moveSelectedToEnd={moveSelectedToEnd}
           hideSelected={hideSelected}
-          user_id={!user ? null : user.id} />}
-        {/*{selectedTab === "weapons" && <WeaponsTab 
+          user_id={!user ? null : user.id} />
+        </div>
+        <div className={selectedTab === "weapons" ? "block" : "hidden"}>
+          <WeaponsTab 
           searchQuery={searchQuery}
           moveSelectedToEnd={moveSelectedToEnd}
-          hideSelected={hideSelected}/>}
-        {selectedTab === "companions" && <CompanionsTab 
+          hideSelected={hideSelected}
+          user_id={!user ? null : user.id}/>
+        </div>
+        <div className={selectedTab === "companions" ? "block" : "hidden"}>
+          <CompanionsTab 
           searchQuery={searchQuery}
           moveSelectedToEnd={moveSelectedToEnd}
-          hideSelected={hideSelected}/>}
-        {selectedTab === "archwings" && <ArchwingsTab 
+          hideSelected={hideSelected}
+          user_id={!user ? null : user.id}/>
+        </div>
+        <div className={selectedTab === "archwings" ? "block" : "hidden"}>
+          <ArchwingsTab
           searchQuery={searchQuery}
           moveSelectedToEnd={moveSelectedToEnd}
-          hideSelected={hideSelected}/>}*/}
-        {selectedTab === "activities" && <ActivitiesTab 
-          />}
+          hideSelected={hideSelected}
+          user_id={!user ? null : user.id}/>
+        </div>
+        <div className={selectedTab === "activities" ? "block" : "hidden"}>
+          <ActivitiesTab/>
+        </div>
       </div>
     </div>
     {showAuthModal && (
