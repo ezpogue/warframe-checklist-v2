@@ -1,5 +1,5 @@
 // lib/themeProvider.js
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
 import clsx from "clsx";
 
 const ThemeContext = createContext();
@@ -13,7 +13,14 @@ const ThemeProvider = ({ children }) => {
     }
     return "classic";
   });
-  const [showThemeList, setShowThemeList] = useState(false); // Add state for theme list visibility
+  const [showThemeList, setShowThemeList] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("theme", theme);
+      console.log("Theme changed to:", theme);
+    }
+  }, [theme]);
 
   const toggleTheme = () => {
     const themes = ["void", "corpus", "grineer", "orokin", "classic"];
@@ -22,13 +29,15 @@ const ThemeProvider = ({ children }) => {
   };
 
   const selectTheme = (newTheme) => {
+    console.log("Selecting theme:", newTheme);
     setTheme(newTheme);
-    localStorage.setItem("theme", newTheme);
-    setShowThemeList(false); // Close list after selection
+    setShowThemeList(false);
   };
 
+  const value = useMemo(() => ({ theme, setTheme, toggleTheme, selectTheme }), [theme]);
+
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
+    <ThemeContext.Provider value={value}>
       {children}
       {/* Floating theme selector icon */}
       <div className="fixed bottom-4 right-4 z-50">

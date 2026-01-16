@@ -2,7 +2,11 @@
 module.exports = {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
-    "./public/index.html"
+    "./gatsby-browser.js",
+    "./gatsby-ssr.js"
+  ],
+  safelist: [
+    { pattern: /^(bg|text|border|accent)-(void|corpus|grineer|orokin|dark|classic)-(bg|card|border|text|primary|hover|accent)$/ },
   ],
   theme: {
     extend: {

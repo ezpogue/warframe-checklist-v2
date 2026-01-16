@@ -34,7 +34,6 @@ const IndexPageContents = () => {
   const [authError, setAuthError] = useState("");
 
   React.useEffect(() => {
-    console.log(theme);
     const getSession = async () => {
       const { data } = await supabase.auth.getSession();
       setUser(data?.session?.user ?? null);
