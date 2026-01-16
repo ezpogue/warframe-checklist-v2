@@ -6,7 +6,13 @@ const ThemeContext = createContext();
 export const useTheme = () => useContext(ThemeContext);
 
 const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState("classic");
+  const [theme, setTheme] = useState(() => {
+    // Try to get theme from localStorage
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("theme") || "classic";
+    }
+    return "classic";
+  });
   const [showThemeList, setShowThemeList] = useState(false); // Add state for theme list visibility
 
   const toggleTheme = () => {
@@ -17,6 +23,7 @@ const ThemeProvider = ({ children }) => {
 
   const selectTheme = (newTheme) => {
     setTheme(newTheme);
+    localStorage.setItem("theme", newTheme);
     setShowThemeList(false); // Close list after selection
   };
 

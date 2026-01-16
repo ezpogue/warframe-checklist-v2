@@ -72,13 +72,21 @@ const IndexPageContents = () => {
   const handleSignup = async () => {
     setAuthError("");
 
-    const { error } = await supabase.auth.signUp({
+    const { error, data } = await supabase.auth.signUp({
       email,
       password,
     });
 
     if (error) {
+      console.log(error);
       setAuthError(error.message);
+      return;
+    }
+
+    if (data?.user && !data.session) {
+      setAuthError("Please check your email to confirm your account.");
+      setEmail("");
+      setPassword("");
       return;
     }
 

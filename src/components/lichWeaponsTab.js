@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { use, useState } from "react";
 import LichWeaponsLegendComponent from "./lichWeaponsLegendComponent";
 import LichWeaponsComponent from "./lichWeaponsComponent";
 
 const LichWeaponsTab = ({ user_id }) => {
+    if(!user_id) return(null);
     return(
         <div className="m-4">
             <div className="flex justify-between items-start mt-4 gap-2">

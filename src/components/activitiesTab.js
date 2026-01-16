@@ -10,7 +10,7 @@ import clsx from "clsx";
 const ActivitiesTab = ({user_id}) => {
   const { theme } = useTheme();
   const resetRefs= useRef({});
-
+  if(!user_id) return(null);
   const handleReset = (category) => {
     Object.entries(resetRefs.current).forEach(([key, resetFn]) => {
       if (key.startsWith(category)) {
