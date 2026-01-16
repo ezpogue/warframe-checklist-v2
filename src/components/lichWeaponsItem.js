@@ -19,7 +19,7 @@ const LichWeaponsItem = ({ item_id, name, imageName, wiki, user_id }) => {
             if (error) {
                 console.error("Error fetching user lich weapon fusions:", error);
             } else {
-                setFusions(data?.fusions || 10);
+                setFusions(data?.fusions_remaining ?? 10);
             }
         };
         fetchUserLichWeapons();
