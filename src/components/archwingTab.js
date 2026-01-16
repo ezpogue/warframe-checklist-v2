@@ -59,35 +59,6 @@ const ArchwingTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id }) 
     };
     fetchArchwing();
   }, [user_id]);
-
-  const handleSelectionChange = useCallback((archwingName, isSelected) => {
-     setSelectedItems((prev) => {
-      const newState = { ...prev, [archwingName]: isSelected };
-
-      const archwing = archwings.find(w => w.name === archwingName);
-      if (!archwing) return newState;
-
-      pendingUpdates.current.push({
-      user_id,
-      item_id: archwing.id,
-      owned: isSelected
-    });
-
-      debouncedUpdate();
-
-      return newState;
-    });
-  }, []);
-  const excluded = ["Catchmoon", "Gaze", "Rattleguts", "Tombfinger"];
-  const included = ["Raplak Prism", "Shwaak Prism", "Granmu Prism", "Rahn Prism", "Cantic Prism", "Lega Prism", "Klamora Prism"];
-  const filteredArchwings = useSearchFilter({
-    items: archwings.filter(a => (!excluded.includes(a.name) && a.masterable) || included.includes(a.name)),
-    searchQuery,
-    selectedItems,
-    hideSelected,
-    moveSelectedToEnd,
-  });
-
   const pendingUpdates = useRef([]);
   const debouncedUpdate = useRef(
   debounce(async () => {
@@ -114,6 +85,33 @@ const ArchwingTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id }) 
     }
   }, 500)
 ).current;
+  const handleSelectionChange = useCallback((archwingName, isSelected) => {
+     setSelectedItems((prev) => {
+      const newState = { ...prev, [archwingName]: isSelected };
+
+      const archwing = archwings.find(w => w.name === archwingName);
+      if (!archwing) return newState;
+
+      pendingUpdates.current.push({
+      user_id,
+      item_id: archwing.id,
+      owned: isSelected
+    });
+
+      debouncedUpdate();
+
+      return newState;
+    });
+  }, [archwings, user_id, debouncedUpdate]);
+  const excluded = ["Catchmoon", "Gaze", "Rattleguts", "Tombfinger"];
+  const included = ["Raplak Prism", "Shwaak Prism", "Granmu Prism", "Rahn Prism", "Cantic Prism", "Lega Prism", "Klamora Prism"];
+  const filteredArchwings = useSearchFilter({
+    items: archwings.filter(a => (!excluded.includes(a.name) && a.masterable) || included.includes(a.name)),
+    searchQuery,
+    selectedItems,
+    hideSelected,
+    moveSelectedToEnd,
+  });
 
   return (
     <div className="mx-auto px-4">

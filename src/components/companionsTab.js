@@ -60,34 +60,6 @@ const CompanionsTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id }
     fetchCompanions();
   }, [user_id]);
 
-  const handleSelectionChange = useCallback((companionName, isSelected) => {
-     setSelectedItems((prev) => {
-      const newState = { ...prev, [companionName]: isSelected };
-
-      const companion = companions.find(w => w.name === companionName);
-      if (!companion) return newState;
-
-      pendingUpdates.current.push({
-      user_id,
-      item_id: companion.id,
-      owned: isSelected
-    });
-
-      debouncedUpdate();
-
-      return newState;
-    });
-  }, []);
-  const excluded = [];
-  const included = [];
-  const filteredCompanions = useSearchFilter({
-    items: companions.filter(c => (!excluded.includes(c.name) && c.masterable) || included.includes(c.name)),
-    searchQuery,
-    selectedItems,
-    hideSelected,
-    moveSelectedToEnd,
-  });
-
   const pendingUpdates = useRef([]);
   const debouncedUpdate = useRef(
   debounce(async () => {
@@ -114,6 +86,34 @@ const CompanionsTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id }
     }
   }, 500)
 ).current;
+
+  const handleSelectionChange = useCallback((companionName, isSelected) => {
+     setSelectedItems((prev) => {
+      const newState = { ...prev, [companionName]: isSelected };
+
+      const companion = companions.find(w => w.name === companionName);
+      if (!companion) return newState;
+
+      pendingUpdates.current.push({
+      user_id,
+      item_id: companion.id,
+      owned: isSelected
+    });
+
+      debouncedUpdate();
+
+      return newState;
+    });
+  }, [companions, user_id, debouncedUpdate]);
+  const excluded = [];
+  const included = [];
+  const filteredCompanions = useSearchFilter({
+    items: companions.filter(c => (!excluded.includes(c.name) && c.masterable) || included.includes(c.name)),
+    searchQuery,
+    selectedItems,
+    hideSelected,
+    moveSelectedToEnd,
+  });
 
   return (
     <div className="mx-auto px-4">

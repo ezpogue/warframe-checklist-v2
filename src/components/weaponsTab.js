@@ -60,37 +60,6 @@ const WeaponsTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id }) =
     fetchWeapons();
   }, [user_id]);
 
-  const handleSelectionChange = useCallback((weaponName, isSelected) => {
-     setSelectedItems((prev) => {
-      const newState = { ...prev, [weaponName]: isSelected };
-
-      const weapon = weapons.find(w => w.name === weaponName);
-      if (!weapon) return newState;
-
-      pendingUpdates.current.push({
-      user_id,
-      item_id: weapon.id,
-      owned: isSelected
-    });
-
-      debouncedUpdate();
-
-      return newState;
-    });
-  }, []);
-  const excluded = ["Lato Prime", "Skana Prime", "Ekwana Ii Jai", "Ekwana Ii Ruhang", "Ekwana Jai", "Ekwana Jai Ii", "Ekwana Ruhang", "Ekwana Ruhang Ii",
-    "Jai", "Jai Ii", "Ruhang", "Ruhang Ii", "Vargeet Ruhang", "Vargeet Jai", "Vargeet Ii Ruhang", "Vargeet Ii Jai", "Vargeet Ruhang Ii",
-    "Vargeet Jai Ii", "Jayap", "Korb", "Kroostra", "Kwath", "Laka", "Peye", "Seekalla", "Shtung", "Plague Akwin", "Plague Bokwin",
-    "Feverspine", "Bad Baby", "Flatbelly", "Needlenose", "Runway"];
-  const included = ["Balla", "Cyath", "Dehtat", "Dokrahm", "Kronsh", "Mewan", "Ooltha", "Rabvee", "Sepfahn", "Plague Keewar", "Plague Kripath", "Sporelacer", "Vermisplicer"];
-  const filteredWeapons = useSearchFilter({
-    items: weapons.filter(w => (!excluded.includes(w.name) && w.masterable) || included.includes(w.name)).filter(w => !w.id.includes("PvP")),
-    searchQuery,
-    selectedItems,
-    hideSelected,
-    moveSelectedToEnd,
-  });
-
   const pendingUpdates = useRef([]);
   const debouncedUpdate = useRef(
   debounce(async () => {
@@ -117,6 +86,37 @@ const WeaponsTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id }) =
     }
   }, 500)
 ).current;
+
+  const handleSelectionChange = useCallback((weaponName, isSelected) => {
+     setSelectedItems((prev) => {
+      const newState = { ...prev, [weaponName]: isSelected };
+
+      const weapon = weapons.find(w => w.name === weaponName);
+      if (!weapon) return newState;
+
+      pendingUpdates.current.push({
+      user_id,
+      item_id: weapon.id,
+      owned: isSelected
+    });
+
+      debouncedUpdate();
+
+      return newState;
+    });
+  }, [weapons, user_id, debouncedUpdate]);
+  const excluded = ["Lato Prime", "Skana Prime", "Ekwana Ii Jai", "Ekwana Ii Ruhang", "Ekwana Jai", "Ekwana Jai Ii", "Ekwana Ruhang", "Ekwana Ruhang Ii",
+    "Jai", "Jai Ii", "Ruhang", "Ruhang Ii", "Vargeet Ruhang", "Vargeet Jai", "Vargeet Ii Ruhang", "Vargeet Ii Jai", "Vargeet Ruhang Ii",
+    "Vargeet Jai Ii", "Jayap", "Korb", "Kroostra", "Kwath", "Laka", "Peye", "Seekalla", "Shtung", "Plague Akwin", "Plague Bokwin",
+    "Feverspine", "Bad Baby", "Flatbelly", "Needlenose", "Runway"];
+  const included = ["Balla", "Cyath", "Dehtat", "Dokrahm", "Kronsh", "Mewan", "Ooltha", "Rabvee", "Sepfahn", "Plague Keewar", "Plague Kripath", "Sporelacer", "Vermisplicer"];
+  const filteredWeapons = useSearchFilter({
+    items: weapons.filter(w => (!excluded.includes(w.name) && w.masterable) || included.includes(w.name)).filter(w => !w.id.includes("PvP")),
+    searchQuery,
+    selectedItems,
+    hideSelected,
+    moveSelectedToEnd,
+  });
 
   return (
     <div className="mx-auto px-4">

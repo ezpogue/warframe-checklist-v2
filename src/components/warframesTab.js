@@ -55,34 +55,6 @@ const WarframesTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id })
     fetchWarframes();
   }, [user_id]);
 
-  const handleSelectionChange = useCallback((warframeName, isSelected) => {
-     setSelectedItems((prev) => {
-      const newState = { ...prev, [warframeName]: isSelected };
-
-      const warframe = warframes.find(w => w.name === warframeName);
-      if (!warframe) return newState;
-
-      pendingUpdates.current.push({
-      user_id,
-      item_id: warframe.id,
-      owned: isSelected
-    });
-
-      debouncedUpdate();
-
-      return newState;
-    });
-  }, []);
-  const excluded = ["Helminth", "Excalibur Prime"];
-  const included = [];
-  const filteredWarframes = useSearchFilter({
-    items: warframes.filter(wf => !excluded.includes(wf.name) || included.includes(wf.name)),
-    searchQuery,
-    selectedItems,
-    hideSelected,
-    moveSelectedToEnd,
-  });
-
   const pendingUpdates = useRef([]);
   const debouncedUpdate = useRef(
   debounce(async () => {
@@ -109,6 +81,34 @@ const WarframesTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id })
     }
   }, 500)
 ).current;
+
+  const handleSelectionChange = useCallback((warframeName, isSelected) => {
+     setSelectedItems((prev) => {
+      const newState = { ...prev, [warframeName]: isSelected };
+
+      const warframe = warframes.find(w => w.name === warframeName);
+      if (!warframe) return newState;
+
+      pendingUpdates.current.push({
+      user_id,
+      item_id: warframe.id,
+      owned: isSelected
+    });
+
+      debouncedUpdate();
+
+      return newState;
+    });
+  }, [warframes, user_id, debouncedUpdate]);
+  const excluded = ["Helminth", "Excalibur Prime"];
+  const included = [];
+  const filteredWarframes = useSearchFilter({
+    items: warframes.filter(wf => !excluded.includes(wf.name) || included.includes(wf.name)),
+    searchQuery,
+    selectedItems,
+    hideSelected,
+    moveSelectedToEnd,
+  });
 
   return (
     <div className="mx-auto px-4">
