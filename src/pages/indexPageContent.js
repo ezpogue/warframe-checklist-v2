@@ -7,6 +7,7 @@ import WeaponsTab from "../components/weaponsTab.js";
 import CompanionsTab from "../components/companionsTab.js";
 import ArchwingsTab from "../components/archwingTab.js";
 import ActivitiesTab from "../components/activitiesTab.js";
+import LichWeaponsTab from "../components/lichWeaponsTab.js";
 import usePersistentLocalStorage from "../hooks/usePersistentLocalStorage.js";
 import { supabase } from "../lib/supabaseClient.js";
 import clsx from "clsx";
@@ -231,6 +232,12 @@ const IndexPageContents = () => {
           >
             Dailies/Weeklies
           </button>
+          <button
+            onClick={() => handleTabChange("lichweps")}
+            className={getTabClasses(selectedTab === "lichweps")}
+          >
+            Lich Weapons
+          </button>
         </div>
         <div className="ml-auto flex items-center gap-4">
           {!user ? (
@@ -300,6 +307,10 @@ const IndexPageContents = () => {
         </div>
         <div className={selectedTab === "activities" ? "block" : "hidden"}>
           <ActivitiesTab
+          user_id={!user ? null : user.id}/>
+        </div>
+        <div className={selectedTab === "lichweps" ? "block" : "hidden"}>
+          <LichWeaponsTab
           user_id={!user ? null : user.id}/>
         </div>
       </div>

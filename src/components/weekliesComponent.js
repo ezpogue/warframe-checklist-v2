@@ -13,7 +13,7 @@ const WeekliesComponent = ({user_id, resetRefs}) => {
         return;
       }
       setWeeklyActivities(weekliesData);
-      console.log("Weekly activities fetched:", weekliesData);
+      //console.log("Weekly activities fetched:", weekliesData);
     }
     fetchWeeklies();
   }, [user_id]);

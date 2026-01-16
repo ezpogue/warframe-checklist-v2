@@ -16,7 +16,7 @@ const ActivityItem = ({ user_id, name, category, activity_id, resetRefs }) => {
         console.error("Error fetching user activities in category " + category + ":", error);
         return;
       }
-      console.log("User activities fetched for activity_id " + activity_id + " and user_id " + user_id + ":", userActivitiesData);
+      //console.log("User activities fetched for activity_id " + activity_id + " and user_id " + user_id + ":", userActivitiesData);
       setIsCompleted(userActivitiesData.completed);
     };
     fetchUserActivities();

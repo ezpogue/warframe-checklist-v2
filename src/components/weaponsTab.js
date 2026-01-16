@@ -24,7 +24,7 @@ const WeaponsTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id }) =
         weaponData = weaponData.concat(weaponBatch);
         page++;
       } while (fetched === batchsize);
-      console.log("Weapons fetched:", weaponData);
+      //console.log("Weapons fetched:", weaponData);
 
       const weaponIDs = weaponData.map(w => w.id);
       //console.log("Weapon IDs:", weaponIDs);
@@ -110,7 +110,7 @@ const WeaponsTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id }) =
           .eq("item_id", item_id);
 
         if (error) console.error("Error updating user item:", error);
-        else console.log("Updated user item:", data);
+        //else console.log("Updated user item:", data);
       }
     } catch (err) {
       console.error("Unexpected error:", err);

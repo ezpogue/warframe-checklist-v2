@@ -13,7 +13,7 @@ const DailiesComponent = ({user_id, resetRefs}) => {
         return;
       }
       setDailyActivities(dailiesData);
-      console.log("Daily activities fetched:", dailiesData);
+      //console.log("Daily activities fetched:", dailiesData);
     }
     fetchDailies();
   }, [user_id]);

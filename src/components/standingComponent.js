@@ -13,7 +13,7 @@ const StandingComponent = ({user_id, resetRefs}) => {
         return;
       }
       setStandingActivities(standingData);
-      console.log("Standing activities fetched:", standingData);
+      //console.log("Standing activities fetched:", standingData);
     }
     fetchStandings();
   }, [user_id]);  

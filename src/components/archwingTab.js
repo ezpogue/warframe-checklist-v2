@@ -24,7 +24,7 @@ const ArchwingTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id }) 
         archwingData = archwingData.concat(archwingBatch);
         page++;
       } while (fetched === batchsize);
-      console.log("Archwing fetched:", archwingData);
+      //console.log("Archwing fetched:", archwingData);
 
       const archwingIDs = archwingData.map(w => w.id);
       //console.log("Archwing IDs:", archwingIDs);
@@ -107,7 +107,7 @@ const ArchwingTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id }) 
           .eq("item_id", item_id);
 
         if (error) console.error("Error updating user item:", error);
-        else console.log("Updated user item:", data);
+        //else console.log("Updated user item:", data);
       }
     } catch (err) {
       console.error("Unexpected error:", err);
