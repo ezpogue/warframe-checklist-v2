@@ -45,8 +45,7 @@ const WarframesTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id })
 
       const ownedMap = {};
       userWarframes.forEach((row) => {
-        const match = warframeData.find(wf => wf.id === row.item_id);
-        if(match) ownedMap[match.name] = row.owned;
+        ownedMap[row.item_id] = row.owned;
       })
 
       setWarframes(warframeData);
@@ -82,16 +81,13 @@ const WarframesTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id })
   }, 500)
 ).current;
 
-  const handleSelectionChange = useCallback((warframeName, isSelected) => {
+  const handleSelectionChange = useCallback((warframeId, isSelected) => {
      setSelectedItems((prev) => {
-      const newState = { ...prev, [warframeName]: isSelected };
-
-      const warframe = warframes.find(w => w.name === warframeName);
-      if (!warframe) return newState;
+      const newState = { ...prev, [warframeId]: isSelected };
 
       pendingUpdates.current.push({
       user_id,
-      item_id: warframe.id,
+      item_id: warframeId,
       owned: isSelected
     });
 
@@ -122,7 +118,7 @@ const WarframesTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id })
               name={warframe.name}
               imageName={warframe.img_name}
               wiki={warframe.wikia_url}
-              isSelected={selectedItems[warframe.name] || false}
+              isSelected={selectedItems[warframe.id] || false}
               onSelectionChange={handleSelectionChange}
               user_id={user_id}
             />

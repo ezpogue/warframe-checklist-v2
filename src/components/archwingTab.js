@@ -50,8 +50,7 @@ const ArchwingTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id }) 
 
       const ownedMap = {};
       userArchwings.forEach((row) => {
-        const match = archwingData.find(w => w.id === row.item_id);
-        if(match) ownedMap[match.name] = row.owned;
+        ownedMap[row.item_id] = row.owned;
       })
 
       setArchwing(archwingData);
@@ -85,16 +84,13 @@ const ArchwingTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id }) 
     }
   }, 500)
 ).current;
-  const handleSelectionChange = useCallback((archwingName, isSelected) => {
+  const handleSelectionChange = useCallback((archwingId, isSelected) => {
      setSelectedItems((prev) => {
-      const newState = { ...prev, [archwingName]: isSelected };
-
-      const archwing = archwings.find(w => w.name === archwingName);
-      if (!archwing) return newState;
+      const newState = { ...prev, [archwingId]: isSelected };
 
       pendingUpdates.current.push({
       user_id,
-      item_id: archwing.id,
+      item_id: archwingId,
       owned: isSelected
     });
 
@@ -125,7 +121,7 @@ const ArchwingTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id }) 
               name={archwing.name}
               imageName={archwing.img_name}
               wiki={archwing.wikia_url}
-              isSelected={selectedItems[archwing.name] || false}
+              isSelected={selectedItems[archwing.id] || false}
               onSelectionChange={handleSelectionChange}
               user_id={user_id}
             />

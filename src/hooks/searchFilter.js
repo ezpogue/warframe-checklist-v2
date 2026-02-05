@@ -10,7 +10,7 @@ const useSearchFilter = ({
   return useMemo(() => {
     let processed = items.map(item => {
       const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
-      const isSelected = !!selectedItems[item.name];
+      const isSelected = !!selectedItems[item.id];
       const hidden = !matchesSearch || (hideSelected && isSelected);
 
       return { ...item, hidden, isSelected };

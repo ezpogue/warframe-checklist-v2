@@ -50,8 +50,7 @@ const WeaponsTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id }) =
 
       const ownedMap = {};
       userWeapons.forEach((row) => {
-        const match = weaponData.find(w => w.id === row.item_id);
-        if(match) ownedMap[match.name] = row.owned;
+        ownedMap[row.item_id] = row.owned;
       })
 
       setWeapons(weaponData);
@@ -87,16 +86,13 @@ const WeaponsTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id }) =
   }, 500)
 ).current;
 
-  const handleSelectionChange = useCallback((weaponName, isSelected) => {
+  const handleSelectionChange = useCallback((weaponId, isSelected) => {
      setSelectedItems((prev) => {
-      const newState = { ...prev, [weaponName]: isSelected };
-
-      const weapon = weapons.find(w => w.name === weaponName);
-      if (!weapon) return newState;
+      const newState = { ...prev, [weaponId]: isSelected };
 
       pendingUpdates.current.push({
       user_id,
-      item_id: weapon.id,
+      item_id: weaponId,
       owned: isSelected
     });
 
@@ -111,7 +107,7 @@ const WeaponsTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id }) =
     "Feverspine", "Bad Baby", "Flatbelly", "Needlenose", "Runway"];
   const included = ["Balla", "Cyath", "Dehtat", "Dokrahm", "Kronsh", "Mewan", "Ooltha", "Rabvee", "Sepfahn", "Plague Keewar", "Plague Kripath", "Sporelacer", "Vermisplicer"];
   const filteredWeapons = useSearchFilter({
-    items: weapons.filter(w => (!excluded.includes(w.name) && w.masterable) || included.includes(w.name)).filter(w => !w.id.includes("PvP")),
+    items: weapons.filter(w => (!excluded.includes(w.name) && w.masterable) || included.includes(w.name)).filter(w => !w.id.includes("PvP")&&!w.id.includes("DoppelgangerGrimoire")),
     searchQuery,
     selectedItems,
     hideSelected,
@@ -130,7 +126,7 @@ const WeaponsTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id }) =
               name={weapon.name}
               imageName={weapon.img_name}
               wiki={weapon.wikia_url}
-              isSelected={selectedItems[weapon.name] || false}
+              isSelected={selectedItems[weapon.id] || false}
               onSelectionChange={handleSelectionChange}
               user_id={user_id}
             />

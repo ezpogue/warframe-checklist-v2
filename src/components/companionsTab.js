@@ -50,8 +50,7 @@ const CompanionsTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id }
 
       const ownedMap = {};
       userCompanions.forEach((row) => {
-        const match = companionsData.find(w => w.id === row.item_id);
-        if(match) ownedMap[match.name] = row.owned;
+        ownedMap[row.item_id] = row.owned;
       })
 
       setCompanions(companionsData);
@@ -87,16 +86,13 @@ const CompanionsTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id }
   }, 500)
 ).current;
 
-  const handleSelectionChange = useCallback((companionName, isSelected) => {
+  const handleSelectionChange = useCallback((companionId, isSelected) => {
      setSelectedItems((prev) => {
-      const newState = { ...prev, [companionName]: isSelected };
-
-      const companion = companions.find(w => w.name === companionName);
-      if (!companion) return newState;
+      const newState = { ...prev, [companionId]: isSelected };
 
       pendingUpdates.current.push({
       user_id,
-      item_id: companion.id,
+      item_id: companionId,
       owned: isSelected
     });
 
@@ -127,7 +123,7 @@ const CompanionsTab = ({ searchQuery, moveSelectedToEnd, hideSelected, user_id }
               name={companion.name}
               imageName={companion.img_name}
               wiki={companion.wikia_url}
-              isSelected={selectedItems[companion.name] || false}
+              isSelected={selectedItems[companion.id] || false}
               onSelectionChange={handleSelectionChange}
               user_id={user_id}
             />

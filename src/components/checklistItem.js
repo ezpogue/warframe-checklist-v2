@@ -108,7 +108,7 @@ const ChecklistCard = React.memo(({
   ).current;
 
   const handleCardClick = () => {
-    onSelectionChange(name, !isSelected); // Update the selected state in the parent
+    onSelectionChange(item_id, !isSelected); // Update the selected state in the parent
   };
 
   const handleLinkClick = (event) => {
