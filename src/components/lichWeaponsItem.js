@@ -4,7 +4,7 @@ import clsx from "clsx";
 import { supabase } from "../lib/supabaseClient";
 import {debounce} from "lodash";
 
-const LichWeaponsItem = ({ item_id, name, imageName, wiki, user_id }) => {
+const LichWeaponsItem = ({ item_id, name, imageName, wiki, user_id, hideFinished }) => {
     const { theme } = useTheme();
     const [fusions, setFusions] = useState(10);
 
@@ -28,6 +28,7 @@ const LichWeaponsItem = ({ item_id, name, imageName, wiki, user_id }) => {
 
     const getLichItemStyles = (theme) => clsx(
         'flex items-center p-3 pr-4 m-0.5 rounded-lg shadow cursor-default relative flex-1 border-4 transition duration-400 ease-in-out min-w-fit', {
+            'hidden': hideFinished && fusions === 0,
             'bg-void-card border-void-border text-void-text': theme === 'void' && fusions !== 0,
             'bg-void-card border-void-accent text-void-text': theme === 'void' && fusions === 0,
             'bg-corpus-card border-corpus-border text-corpus-text': theme === 'corpus' && fusions !== 0,
@@ -39,7 +40,7 @@ const LichWeaponsItem = ({ item_id, name, imageName, wiki, user_id }) => {
             'bg-dark-card border-dark-border text-dark-text': theme === 'dark' && fusions !== 0,
             'bg-dark-card border-dark-accent text-dark-text': theme === 'dark' && fusions === 0,
             'bg-classic-card border-classic-border text-classic-text': theme === 'classic' && fusions !== 0,
-            'bg-classic-card border-classic-accent text-classic-text': theme === 'classic' && fusions === 0
+            'bg-classic-card border-classic-accent text-classic-text': theme === 'classic' && fusions === 0,
         }
     )
     const getCardCheckStyles = (theme) => clsx(

@@ -2,7 +2,7 @@ import React, {useEffect} from "react";
 import { supabase } from "../lib/supabaseClient";
 import LichWeaponsItem from "./lichWeaponsItem"
 
-const LichWeaponsComponent = ({ type, user_id }) => {
+const LichWeaponsComponent = ({ type, user_id, hideFinished }) => {
 
     const [weapons, setWeapons] = React.useState([]);
     useEffect(() => {
@@ -35,7 +35,8 @@ const LichWeaponsComponent = ({ type, user_id }) => {
                         name={weapon.name} 
                         imageName={weapon.img_name} 
                         wiki={weapon.wikia_url} 
-                        user_id={user_id} 
+                        user_id={user_id}
+                        hideFinished={hideFinished}
                     />
                 ))}
             </div>
