@@ -10,6 +10,7 @@
     "clean": "gatsby clean"
   },
   "dependencies": {
+    "@netlify/functions": "^5.1.2",
     "@supabase/supabase-js": "^2.86.2",
     "@wfcd/items": "^1.1272.99",
     "clsx": "^2.1.1",
