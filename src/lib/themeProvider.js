@@ -6,22 +6,30 @@ const ThemeContext = createContext();
 export const useTheme = () => useContext(ThemeContext);
 
 const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState(() => {
-    // Try to get theme from localStorage
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("theme") || "classic";
-    }
-    return "classic";
-  });
+  const [theme, setTheme] = useState("classic");
+  const [isThemeReady, setIsThemeReady] = useState(false);
   const [showThemeList, setShowThemeList] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("theme", theme);
-      document.documentElement.setAttribute("data-theme", theme);
-      console.log("Theme changed to:", theme);
+    if (typeof window === "undefined") {
+      return;
     }
-  }, [theme]);
+
+    const storedTheme = localStorage.getItem("theme") || "classic";
+    setTheme(storedTheme);
+    document.documentElement.setAttribute("data-theme", storedTheme);
+    setIsThemeReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isThemeReady || typeof window === "undefined") {
+      return;
+    }
+
+    localStorage.setItem("theme", theme);
+    document.documentElement.setAttribute("data-theme", theme);
+    console.log("Theme changed to:", theme);
+  }, [theme, isThemeReady]);
 
   const toggleTheme = () => {
     const themes = ["void", "corpus", "grineer", "orokin", "classic"];
