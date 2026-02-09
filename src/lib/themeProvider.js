@@ -18,6 +18,7 @@ const ThemeProvider = ({ children }) => {
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem("theme", theme);
+      document.documentElement.setAttribute("data-theme", theme);
       console.log("Theme changed to:", theme);
     }
   }, [theme]);
