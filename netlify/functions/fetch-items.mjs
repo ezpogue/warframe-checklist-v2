@@ -93,19 +93,25 @@ const handler = async (event, context) => {
       console.log(`${category} completed`);
     }
     
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ 
+    return new Response(
+      JSON.stringify({
         message: 'Items fetched and updated successfully',
         timestamp: new Date().toISOString()
-      })
-    };
+      }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
   } catch (error) {
     console.error('❌ Failed to fetch Warframe items:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: error.message })
-    };
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
   }
 };
 
